@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LiveBroadcast - Watch</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#0d0d0d;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;}
+    header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #e94560;}
+    header h1{font-size:1.6rem;color:#e94560;letter-spacing:2px;}
+    .live-badge{background:#e94560;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:bold;display:flex;align-items:center;gap:6px;}
+    .dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+    .container{max-width:960px;margin:30px auto;padding:0 16px;}
+    .video-wrap{background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;margin-bottom:20px;}
+    video{width:100%;height:100%;display:block;object-fit:contain;}
+    .info-bar{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+    .video-title{font-size:1rem;color:#fff;}
+    .viewer-count{color:#aaa;font-size:.85rem;}
+    .status-msg{background:#16213e;border-radius:8px;padding:14px 20px;text-align:center;color:#aaa;font-size:.9rem;margin-bottom:16px;}
+    .status-msg.live{color:#2ecc71;border:1px solid #2ecc71;}
+    .status-msg.offline{color:#e94560;border:1px solid #e94560;}
+    .progress-wrap{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-bottom:16px;}
+    .progress-label{display:flex;justify-content:space-between;font-size:.8rem;color:#aaa;margin-bottom:8px;}
+    progress{width:100%;height:6px;border-radius:4px;accent-color:#e94560;}
+    progress::-webkit-progress-bar{background:#16213e;border-radius:4px;}
+    progress::-webkit-progress-value{background:#e94560;border-radius:4px;}
+    .vol-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;}
+    .vol-row label{font-size:.85rem;color:#aaa;}
+    input[type=range]{accent-color:#e94560;cursor:pointer;}
+    .waiting{text-align:center;padding:60px 20px;}
+    .waiting h2{color:#e94560;font-size:1.4rem;margin-bottom:12px;}
+    .waiting p{color:#aaa;}
+    .spinner{border:3px solid #16213e;border-top:3px solid #e94560;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:20px auto;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .notice{background:#1a1a2e;border-radius:12px;padding:16px;text-align:center;margin-top:16px;font-size:.85rem;color:#aaa;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>&#127909; LiveBroadcast</h1>
+    <div class="live-badge" id="liveBadge" style="display:none;"><div class="dot"></div> LIVE</div>
+  </header>
+  <div class="container">
+    <div id="waitingScreen" class="waiting">
+      <div class="spinner"></div>
+      <h2>Waiting for broadcast...</h2>
+      <p>The host hasn't started yet. This page will auto-update when they go live.</p>
+    </div>
+    <div id="liveScreen" style="display:none;">
+      <div class="status-msg live" id="statusMsg">&#128994; LIVE - Broadcasting now</div>
+      <div class="info-bar">
+        <span class="video-title" id="videoTitle">Loading...</span>
+        <span class="viewer-count">&#128065; Watching live</span>
+      </div>
+      <div class="video-wrap">
+        <video id="viewerVideo" preload="auto" playsinline></video>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span id="curTime">0:00</span><span id="durTime">0:00</span></div>
+        <progress id="progressBar" value="0" max="100"></progress>
+        <div class="vol-row">
+          <label>&#128266; Your Volume</label>
+          <input type="range" id="volControl" min="0" max="1" step="0.05" value="0.8" oninput="document.getElementById('viewerVideo').volume=this.value" style="width:140px;"/>
+        </div>
+      </div>
+      <div class="notice">&#128274; Playback is controlled by the host. Enjoy the broadcast!</div>
+    </div>
+    <div id="offlineScreen" style="display:none;">
+      <div class="status-msg offline">&#128308; Broadcast has ended</div>
+      <div class="waiting">
+        <h2>Stream Offline</h2>
+        <p>The broadcast has ended. Check back later!</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummy_ReplaceWithYourKey",
+      authDomain: "livebroadcast-app.firebaseapp.com",
+      databaseURL: "https://livebroadcast-app-default-rtdb.firebaseio.com",
+      projectId: "livebroadcast-app",
+      storageBucket: "livebroadcast-app.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:000000000000000000000000"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const video = document.getElementById('viewerVideo');
+    const progressBar = document.getElementById('progressBar');
+    const curTime = document.getElementById('curTime');
+    const durTime = document.getElementById('durTime');
+
+    let hasInteracted = false;
+    let lastTs = 0;
+    let wasLive = false;
+
+    document.body.addEventListener('click', ()=>{ hasInteracted=true; }, {once:true});
+    document.body.addEventListener('keydown', ()=>{ hasInteracted=true; }, {once:true});
+
+    function fmt(s){
+      s=Math.floor(s||0);
+      return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60;
+    }
+
+    video.addEventListener('timeupdate', ()=>{
+      if(video.duration){
+        progressBar.value=(video.currentTime/video.duration)*100;
+        curTime.textContent=fmt(video.currentTime);
+        durTime.textContent=fmt(video.duration);
+      }
+    });
+
+    onValue(ref(db,'broadcast'), snap=>{
+      const data = snap.val();
+      if(!data || data.live===false){
+        document.getElementById('waitingScreen').style.display = wasLive ? 'none' : 'block';
+        document.getElementById('liveScreen').style.display = 'none';
+        document.getElementById('offlineScreen').style.display = wasLive ? 'block' : 'none';
+        document.getElementById('liveBadge').style.display = 'none';
+        return;
+      }
+      wasLive = true;
+      document.getElementById('waitingScreen').style.display = 'none';
+      document.getElementById('offlineScreen').style.display = 'none';
+      document.getElementById('liveScreen').style.display = 'block';
+      document.getElementById('liveBadge').style.display = 'flex';
+      document.getElementById('videoTitle').textContent = data.title || 'Untitled Video';
+
+      // Only sync if new push from host (ts changed)
+      if(data.ts !== lastTs){
+        lastTs = data.ts;
+        const drift = Math.abs(video.currentTime - data.currentTime);
+        if(drift > 2) video.currentTime = data.currentTime;
+        if(data.paused){ video.pause(); }
+        else {
+          if(hasInteracted){
+            video.play().catch(()=>{});
+          } else {
+            video.muted = true;
+            video.play().then(()=>{ video.muted=false; video.volume=parseFloat(document.getElementById('volControl').value); }).catch(()=>{});
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
