@@ -14,27 +14,13 @@
     @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
     .container{max-width:960px;margin:30px auto;padding:0 16px;}
     .video-wrap{background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;margin-bottom:20px;}
-    video{width:100%;height:100%;display:block;object-fit:contain;}
-    .info-bar{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+    video, iframe{width:100%;height:100%;display:block;border:none;}
+    .status-msg{background:#16213e;border-radius:8px;padding:14px 20px;text-align:center;color:#aaa;font-size:.9rem;margin-bottom:16px;border:1px solid #333;}
+    .info-bar{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
     .video-title{font-size:1rem;color:#fff;}
-    .viewer-count{color:#aaa;font-size:.85rem;}
-    .status-msg{background:#16213e;border-radius:8px;padding:14px 20px;text-align:center;color:#aaa;font-size:.9rem;margin-bottom:16px;}
-    .status-msg.live{color:#2ecc71;border:1px solid #2ecc71;}
-    .status-msg.offline{color:#e94560;border:1px solid #e94560;}
-    .progress-wrap{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-bottom:16px;}
-    .progress-label{display:flex;justify-content:space-between;font-size:.8rem;color:#aaa;margin-bottom:8px;}
-    progress{width:100%;height:6px;border-radius:4px;accent-color:#e94560;}
-    progress::-webkit-progress-bar{background:#16213e;border-radius:4px;}
-    progress::-webkit-progress-value{background:#e94560;border-radius:4px;}
-    .vol-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;}
-    .vol-row label{font-size:.85rem;color:#aaa;}
-    input[type=range]{accent-color:#e94560;cursor:pointer;}
     .waiting{text-align:center;padding:60px 20px;}
-    .waiting h2{color:#e94560;font-size:1.4rem;margin-bottom:12px;}
-    .waiting p{color:#aaa;}
     .spinner{border:3px solid #16213e;border-top:3px solid #e94560;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:20px auto;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    .notice{background:#1a1a2e;border-radius:12px;padding:16px;text-align:center;margin-top:16px;font-size:.85rem;color:#aaa;}
   </style>
 </head>
 <body>
@@ -45,33 +31,16 @@
   <div class="container">
     <div id="waitingScreen" class="waiting">
       <div class="spinner"></div>
-      <h2>Waiting for broadcast...</h2>
-      <p>The host hasn't started yet. This page will auto-update when they go live.</p>
+      <h2>Waiting for host...</h2>
     </div>
     <div id="liveScreen" style="display:none;">
-      <div class="status-msg live" id="statusMsg">&#128994; LIVE - Broadcasting now</div>
+      <div class="status-msg">&#128994; LIVE - Broadcasting now</div>
       <div class="info-bar">
         <span class="video-title" id="videoTitle">Loading...</span>
-        <span class="viewer-count">&#128065; Watching live</span>
       </div>
       <div class="video-wrap">
-        <video id="viewerVideo" preload="auto" playsinline></video>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-label"><span id="curTime">0:00</span><span id="durTime">0:00</span></div>
-        <progress id="progressBar" value="0" max="100"></progress>
-        <div class="vol-row">
-          <label>&#128266; Your Volume</label>
-          <input type="range" id="volControl" min="0" max="1" step="0.05" value="0.8" oninput="document.getElementById('viewerVideo').volume=this.value" style="width:140px;"/>
-        </div>
-      </div>
-      <div class="notice">&#128274; Playback is controlled by the host. Enjoy the broadcast!</div>
-    </div>
-    <div id="offlineScreen" style="display:none;">
-      <div class="status-msg offline">&#128308; Broadcast has ended</div>
-      <div class="waiting">
-        <h2>Stream Offline</h2>
-        <p>The broadcast has ended. Check back later!</p>
+        <video id="viewerVideo" style="display:none;" controls playsinline></video>
+        <iframe id="viewerIframe" style="display:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
       </div>
     </div>
   </div>
@@ -81,72 +50,47 @@
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAahthxGIT-nzlG1Xy9qmuyLoIKZxFefJw",
-      authDomain: "livebroadcast-8e218.firebaseapp.com",
-      databaseURL: "https://livebroadcast-8e218-default-rtdb.firebaseio.com",
-      projectId: "livebroadcast-8e218",
-      storageBucket: "livebroadcast-8e218.firebasestorage.app",
-      messagingSenderId: "404406925372",
-      appId: "1:404406925372:web:b5d52ce6cc016cc2f9ab39"
+      apiKey: "AIzaSyDummy_ReplaceWithYourKey",
+      databaseURL: "https://livebroadcast-app-default-rtdb.firebaseio.com",
+      projectId: "livebroadcast-app"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     const video = document.getElementById('viewerVideo');
-    const progressBar = document.getElementById('progressBar');
-    const curTime = document.getElementById('curTime');
-    const durTime = document.getElementById('durTime');
+    const iframe = document.getElementById('viewerIframe');
+    let lastSrc = '';
 
-    let hasInteracted = false;
-    let lastTs = 0;
-    let wasLive = false;
-
-    document.body.addEventListener('click', ()=>{ hasInteracted=true; }, {once:true});
-    document.body.addEventListener('keydown', ()=>{ hasInteracted=true; }, {once:true});
-
-    function fmt(s){
-      s=Math.floor(s||0);
-      return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60;
-    }
-
-    video.addEventListener('timeupdate', ()=>{
-      if(video.duration){
-        progressBar.value=(video.currentTime/video.duration)*100;
-        curTime.textContent=fmt(video.currentTime);
-        durTime.textContent=fmt(video.duration);
-      }
-    });
-
-    onValue(ref(db,'broadcast'), snap=>{
+    onValue(ref(db, 'broadcast'), snap => {
       const data = snap.val();
-      if(!data || data.live===false){
-        document.getElementById('waitingScreen').style.display = wasLive ? 'none' : 'block';
+      if(!data || !data.live) {
+        document.getElementById('waitingScreen').style.display = 'block';
         document.getElementById('liveScreen').style.display = 'none';
-        document.getElementById('offlineScreen').style.display = wasLive ? 'block' : 'none';
         document.getElementById('liveBadge').style.display = 'none';
+        iframe.src = '';
+        video.src = '';
         return;
       }
-      wasLive = true;
+
       document.getElementById('waitingScreen').style.display = 'none';
-      document.getElementById('offlineScreen').style.display = 'none';
       document.getElementById('liveScreen').style.display = 'block';
       document.getElementById('liveBadge').style.display = 'flex';
-      document.getElementById('videoTitle').textContent = data.title || 'Untitled Video';
+      document.getElementById('videoTitle').textContent = data.title;
 
-      // Only sync if new push from host (ts changed)
-      if(data.ts !== lastTs){
-        lastTs = data.ts;
-        const drift = Math.abs(video.currentTime - data.currentTime);
-        if(drift > 2) video.currentTime = data.currentTime;
-        if(data.paused){ video.pause(); }
-        else {
-          if(hasInteracted){
-            video.play().catch(()=>{});
-          } else {
-            video.muted = true;
-            video.play().then(()=>{ video.muted=false; video.volume=parseFloat(document.getElementById('volControl').value); }).catch(()=>{});
-          }
+      if(data.src !== lastSrc) {
+        lastSrc = data.src;
+        if(data.type === 'youtube' || data.type === 'iframe') {
+          video.style.display = 'none';
+          video.src = '';
+          iframe.style.display = 'block';
+          iframe.src = data.src;
+        } else {
+          iframe.style.display = 'none';
+          iframe.src = '';
+          video.style.display = 'block';
+          video.src = data.src;
+          video.play().catch(()=>{});
         }
       }
     });
