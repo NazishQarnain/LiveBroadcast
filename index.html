@@ -11,128 +11,191 @@
     header h1{font-size:1.6rem;color:#e94560;letter-spacing:2px;}
     header span{background:#e94560;padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:bold;}
     .container{max-width:960px;margin:30px auto;padding:0 16px;}
-    .upload-box{background:#1a1a2e;border:2px dashed #e94560;border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:.3s;margin-bottom:24px;}
-    .upload-box:hover{background:#16213e;}
-    .upload-box input{display:none;}
-    .upload-box label{cursor:pointer;font-size:1rem;color:#ccc;}
-    .upload-box label span{color:#e94560;font-weight:bold;}
-    .playlist{background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:24px;}
-    .playlist h2{margin-bottom:12px;color:#e94560;font-size:1.1rem;}
-    .playlist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;margin-bottom:8px;background:#16213e;cursor:pointer;transition:.2s;}
-    .playlist-item:hover{background:#0f3460;}
-    .playlist-item.active{background:#e94560;color:#fff;}
-    .playlist-item .title{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;}
-    .playlist-item .del-btn{background:none;border:none;color:#aaa;cursor:pointer;font-size:1rem;padding:4px 8px;}
-    .playlist-item.active .del-btn{color:#fff;}
-    .video-wrap{background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;margin-bottom:20px;position:relative;}
-    video{width:100%;height:100%;display:block;object-fit:contain;}
-    .controls{background:#1a1a2e;border-radius:12px;padding:20px;}
-    .progress-wrap{margin-bottom:16px;}
-    .progress-label{display:flex;justify-content:space-between;font-size:.8rem;color:#aaa;margin-bottom:6px;}
-    input[type=range]{width:100%;accent-color:#e94560;cursor:pointer;}
-    .btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
-    .btn{background:#e94560;border:none;color:#fff;padding:10px 22px;border-radius:8px;font-size:.95rem;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;}
+    .input-section{background:#1a1a2e;border-radius:12px;padding:24px;margin-bottom:24px;border:1px solid #333;}
+    .input-section h2{font-size:1.1rem;color:#e94560;margin-bottom:16px;}
+    .tabs{display:flex;gap:10px;margin-bottom:16px;}
+    .tab{background:#16213e;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.9rem;border:1px solid transparent;}
+    .tab.active{background:#e94560;color:#fff;border-color:#e94560;}
+    .form-group{margin-bottom:12px;}
+    .form-group label{display:block;font-size:.85rem;color:#aaa;margin-bottom:6px;}
+    .form-group input{width:100%;background:#0f3460;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;outline:none;}
+    .form-group input:focus{border-color:#e94560;}
+    .btn{background:#e94560;border:none;color:#fff;padding:10px 22px;border-radius:8px;font-size:.95rem;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;width:max-content;}
     .btn:hover{background:#c73652;}
     .btn.secondary{background:#16213e;border:1px solid #e94560;}
-    .btn.secondary:hover{background:#0f3460;}
-    .volume-row{display:flex;align-items:center;gap:10px;justify-content:center;}
-    .volume-row label{font-size:.85rem;color:#aaa;}
-    .status-bar{background:#16213e;border-radius:8px;padding:10px 16px;text-align:center;color:#aaa;font-size:.85rem;margin-top:16px;}
-    .viewer-link{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-top:20px;text-align:center;}
-    .viewer-link h3{color:#e94560;margin-bottom:10px;}
-    .viewer-link a{color:#7fdbff;word-break:break-all;}
-    .copy-btn{background:#e94560;border:none;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;margin-left:10px;font-size:.85rem;}
+    .playlist{background:#1a1a2e;border-radius:12px;padding:20px;margin-bottom:24px;}
+    .playlist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;margin-bottom:8px;background:#16213e;cursor:pointer;}
+    .playlist-item.active{background:#e94560;color:#fff;}
+    .playlist-item .title{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px;}
+    .video-wrap{background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;margin-bottom:20px;position:relative;}
+    video, iframe{width:100%;height:100%;display:block;border:none;}
+    .controls{background:#1a1a2e;border-radius:12px;padding:20px;}
     .broadcast-toggle{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:16px;}
     .live-dot{width:10px;height:10px;background:#e94560;border-radius:50%;animation:pulse 1s infinite;}
     @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-    @media(max-width:600px){.btn-row{gap:8px;}.btn{padding:8px 14px;font-size:.85rem;}}
+    .status-bar{background:#16213e;border-radius:8px;padding:10px 16px;text-align:center;color:#aaa;font-size:.85rem;margin-top:16px;}
+    .viewer-link{background:#1a1a2e;border-radius:12px;padding:16px 20px;margin-top:20px;text-align:center;}
+    .viewer-link a{color:#7fdbff;word-break:break-all;}
   </style>
 </head>
 <body>
   <header>
     <h1>&#127909; LiveBroadcast</h1>
-    <span id="hostBadge">HOST PANEL</span>
+    <span>HOST PANEL</span>
   </header>
   <div class="container">
-    <div class="upload-box">
-      <input type="file" id="videoInput" accept="video/*" multiple />
-      <label for="videoInput">&#128190; <span>Click to upload videos</span> &mdash; MP4, WebM, MOV supported</label>
+    <div class="input-section">
+      <h2>&#128249; Add Content</h2>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('file')">File</div>
+        <div class="tab" onclick="switchTab('link')">URL / Drive / YT</div>
+      </div>
+      
+      <div id="fileGroup">
+        <div class="form-group">
+          <label>Select local video file</label>
+          <input type="file" id="videoInput" accept="video/*" multiple />
+        </div>
+      </div>
+      
+      <div id="linkGroup" style="display:none;">
+        <div class="form-group">
+          <label>Paste Link (Direct Video, YouTube, or Shared Google Drive Link)</label>
+          <input type="text" id="linkInput" placeholder="https://youtube.com/watch?v=... or direct .mp4 link" />
+        </div>
+        <button class="btn" onclick="addLink()">Add to Playlist</button>
+      </div>
     </div>
+
     <div class="playlist">
       <h2>&#127916; Playlist</h2>
-      <div id="playlistContainer"><p style="color:#666;font-size:.9rem;">No videos yet. Upload some above!</p></div>
+      <div id="playlistContainer"><p style="color:#666;font-size:.9rem;">No videos yet.</p></div>
     </div>
-    <div class="video-wrap">
-      <video id="videoPlayer" preload="auto"></video>
+
+    <div class="video-wrap" id="previewContainer">
+      <video id="videoPlayer" controls style="display:none;"></video>
+      <iframe id="iframePlayer" style="display:none;"></iframe>
+      <div id="placeholder" style="display:flex;align-items:center;justify-content:center;height:100%;color:#444;">Select a video to preview</div>
     </div>
+
     <div class="controls">
       <div class="broadcast-toggle">
         <div class="live-dot" id="liveDot" style="display:none;"></div>
         <button class="btn" id="broadcastBtn" onclick="toggleBroadcast()">&#128247; Start Broadcasting</button>
       </div>
-      <div class="progress-wrap">
-        <div class="progress-label"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
-        <input type="range" id="seekBar" min="0" max="100" value="0" oninput="seekVideo(this.value)" />
-      </div>
-      <div class="btn-row">
-        <button class="btn secondary" onclick="prevVideo()">&#9664;&#9664; Prev</button>
-        <button class="btn" id="playPauseBtn" onclick="togglePlay()">&#9654; Play</button>
-        <button class="btn secondary" onclick="nextVideo()">Next &#9654;&#9654;</button>
-      </div>
-      <div class="volume-row">
-        <label>&#128266; Volume</label>
-        <input type="range" id="volumeBar" min="0" max="1" step="0.05" value="1" style="width:160px;" oninput="setVolume(this.value)" />
-      </div>
-      <div class="status-bar" id="statusBar">No video loaded. Upload and select a video.</div>
+      <div class="status-bar" id="statusBar">Ready to broadcast.</div>
     </div>
+
     <div class="viewer-link">
       <h3>&#128279; Share with Friends</h3>
-      <p style="font-size:.85rem;color:#aaa;margin-bottom:8px;">Your friends should open this link to watch:</p>
-      <a id="viewerUrl" href="#"></a>
-      <button class="copy-btn" onclick="copyLink()">Copy</button>
+      <a id="viewerUrl" href="#" target="_blank"></a>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAahthxGIT-nzlG1Xy9qmuyLoIKZxFefJw",
-      authDomain: "livebroadcast-8e218.firebaseapp.com",
-      databaseURL: "https://livebroadcast-8e218-default-rtdb.firebaseio.com",
-      projectId: "livebroadcast-8e218",
-      storageBucket: "livebroadcast-8e218.firebasestorage.app",
-      messagingSenderId: "404406925372",
-      appId: "1:404406925372:web:b5d52ce6cc016cc2f9ab39"
+      apiKey: "AIzaSyDummy_ReplaceWithYourKey",
+      databaseURL: "https://livebroadcast-app-default-rtdb.firebaseio.com",
+      projectId: "livebroadcast-app"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     const video = document.getElementById('videoPlayer');
-    const seekBar = document.getElementById('seekBar');
-    const playPauseBtn = document.getElementById('playPauseBtn');
+    const iframe = document.getElementById('iframePlayer');
+    const placeholder = document.getElementById('placeholder');
     const statusBar = document.getElementById('statusBar');
     const liveDot = document.getElementById('liveDot');
 
     let playlist = [];
     let currentIndex = -1;
     let isBroadcasting = false;
-    let videoURLs = {};
 
-    window.toggleBroadcast = function() {
+    window.switchTab = (type) => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('fileGroup').style.display = type==='file'?'block':'none';
+      document.getElementById('linkGroup').style.display = type==='link'?'block':'none';
+    };
+
+    function processLink(url) {
+      if(url.includes('youtube.com/watch?v=')) {
+        const id = url.split('v=')[1].split('&')[0];
+        return { type: 'youtube', src: `https://www.youtube.com/embed/${id}?autoplay=1`, title: 'YouTube: ' + id };
+      }
+      if(url.includes('youtu.be/')) {
+        const id = url.split('youtu.be/')[1].split('?')[0];
+        return { type: 'youtube', src: `https://www.youtube.com/embed/${id}?autoplay=1`, title: 'YouTube: ' + id };
+      }
+      if(url.includes('drive.google.com/file/d/')) {
+        const id = url.split('/d/')[1].split('/')[0];
+        return { type: 'iframe', src: `https://drive.google.com/file/d/${id}/preview`, title: 'Google Drive Video' };
+      }
+      return { type: 'video', src: url, title: url.split('/').pop() || 'Remote Video' };
+    }
+
+    window.addLink = () => {
+      const input = document.getElementById('linkInput');
+      if(!input.value) return;
+      playlist.push(processLink(input.value));
+      input.value = '';
+      renderPlaylist();
+      if(currentIndex === -1) loadVideo(0);
+    };
+
+    document.getElementById('videoInput').addEventListener('change', (e) => {
+      Array.from(e.target.files).forEach(file => {
+        playlist.push({ type: 'file', src: URL.createObjectURL(file), title: file.name });
+      });
+      renderPlaylist();
+      if(currentIndex === -1) loadVideo(0);
+    });
+
+    window.loadVideo = (index) => {
+      currentIndex = index;
+      const item = playlist[index];
+      placeholder.style.display = 'none';
+      
+      if(item.type === 'file' || item.type === 'video') {
+        iframe.style.display = 'none';
+        iframe.src = '';
+        video.style.display = 'block';
+        video.src = item.src;
+        video.play().catch(()=>{});
+      } else {
+        video.style.display = 'none';
+        video.pause();
+        iframe.style.display = 'block';
+        iframe.src = item.src;
+      }
+      renderPlaylist();
+      pushState();
+    };
+
+    window.renderPlaylist = () => {
+      const container = document.getElementById('playlistContainer');
+      container.innerHTML = playlist.map((item, i) => `
+        <div class="playlist-item ${i===currentIndex?'active':''}" onclick="loadVideo(${i})">
+          <span class="title">${item.title}</span>
+          <span style="font-size:.7rem;opacity:.6;">${item.type.toUpperCase()}</span>
+        </div>
+      `).join('') || '<p style="color:#666;font-size:.9rem;">No videos yet.</p>';
+    };
+
+    window.toggleBroadcast = () => {
       isBroadcasting = !isBroadcasting;
       const btn = document.getElementById('broadcastBtn');
       if(isBroadcasting) {
         btn.innerHTML = '&#9209; Stop Broadcasting';
-        btn.style.background = '#c73652';
         liveDot.style.display = 'block';
         pushState();
-        statusBar.textContent = 'Broadcasting LIVE! Friends can now join.';
+        statusBar.textContent = 'Broadcasting LIVE!';
       } else {
         btn.innerHTML = '&#128247; Start Broadcasting';
-        btn.style.background = '#e94560';
         liveDot.style.display = 'none';
         set(ref(db, 'broadcast'), { live: false });
         statusBar.textContent = 'Broadcast stopped.';
@@ -140,118 +203,20 @@
     };
 
     function pushState() {
-      if(!isBroadcasting) return;
-      const title = playlist[currentIndex] || '';
+      if(!isBroadcasting || currentIndex === -1) return;
+      const item = playlist[currentIndex];
       set(ref(db, 'broadcast'), {
         live: true,
-        index: currentIndex,
-        title: title,
-        currentTime: video.currentTime,
-        paused: video.paused,
-        volume: video.volume,
+        type: item.type,
+        src: item.src,
+        title: item.title,
         ts: Date.now()
       });
     }
 
-    document.getElementById('videoInput').addEventListener('change', function(e) {
-      const files = Array.from(e.target.files);
-      files.forEach(file => {
-        const url = URL.createObjectURL(file);
-        videoURLs[file.name] = url;
-        playlist.push(file.name);
-      });
-      renderPlaylist();
-      if(currentIndex === -1 && playlist.length > 0) loadVideo(0);
-    });
-
-    window.renderPlaylist = function() {
-      const container = document.getElementById('playlistContainer');
-      if(playlist.length === 0) {
-        container.innerHTML = '<p style="color:#666;font-size:.9rem;">No videos yet. Upload some above!</p>';
-        return;
-      }
-      container.innerHTML = playlist.map((name, i) => `
-        <div class="playlist-item ${i===currentIndex?'active':''}" id="pli-${i}">
-          <span class="title" onclick="loadVideo(${i})">&#127916; ${name}</span>
-          <button class="del-btn" onclick="removeVideo(${i})">&#128465;</button>
-        </div>
-      `).join('');
-    };
-
-    window.loadVideo = function(index) {
-      if(index < 0 || index >= playlist.length) return;
-      currentIndex = index;
-      const name = playlist[index];
-      video.src = videoURLs[name];
-      video.load();
-      video.play().then(()=>{ updatePlayBtn(); pushState(); }).catch(()=>{});
-      renderPlaylist();
-      statusBar.textContent = 'Playing: ' + name;
-      pushState();
-    };
-
-    window.removeVideo = function(index) {
-      URL.revokeObjectURL(videoURLs[playlist[index]]);
-      delete videoURLs[playlist[index]];
-      playlist.splice(index, 1);
-      if(currentIndex >= playlist.length) currentIndex = playlist.length - 1;
-      renderPlaylist();
-      if(playlist.length > 0) loadVideo(currentIndex >= 0 ? currentIndex : 0);
-      else { video.src=''; statusBar.textContent='No video loaded.'; }
-    };
-
-    window.togglePlay = function() {
-      if(video.paused) { video.play(); } else { video.pause(); }
-      updatePlayBtn();
-      pushState();
-    };
-
-    window.prevVideo = function() {
-      if(currentIndex > 0) loadVideo(currentIndex - 1);
-    };
-
-    window.nextVideo = function() {
-      if(currentIndex < playlist.length - 1) loadVideo(currentIndex + 1);
-    };
-
-    window.seekVideo = function(val) {
-      if(video.duration) { video.currentTime = (val/100)*video.duration; pushState(); }
-    };
-
-    window.setVolume = function(val) {
-      video.volume = val;
-      pushState();
-    };
-
-    function updatePlayBtn() {
-      playPauseBtn.innerHTML = video.paused ? '&#9654; Play' : '&#9646;&#9646; Pause';
-    }
-
-    function formatTime(s) {
-      s = Math.floor(s||0);
-      return Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60;
-    }
-
-    video.addEventListener('timeupdate', ()=>{
-      if(video.duration) seekBar.value = (video.currentTime/video.duration)*100;
-      document.getElementById('currentTime').textContent = formatTime(video.currentTime);
-      document.getElementById('duration').textContent = formatTime(video.duration);
-      if(isBroadcasting && Math.floor(video.currentTime)%5===0) pushState();
-    });
-
-    video.addEventListener('ended', ()=>{ nextVideo(); });
-    video.addEventListener('play', updatePlayBtn);
-    video.addEventListener('pause', updatePlayBtn);
-
-    // Viewer link
-    const baseUrl = window.location.href.replace('index.html','').replace(/\/?$/,'/');
-    const vUrl = baseUrl + 'viewer.html';
+    const vUrl = window.location.href.replace('index.html', 'viewer.html');
     document.getElementById('viewerUrl').textContent = vUrl;
     document.getElementById('viewerUrl').href = vUrl;
-
-    window.copyLink = function() {
-      navigator.clipboard.writeText(vUrl).then(()=>{ statusBar.textContent='Link copied to clipboard!'; });
-    };
   </script>
 </body>
 </html>
